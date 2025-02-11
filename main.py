@@ -5,7 +5,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from collections import Counter
 # venv\Scripts\activate
-
+# MTIwMTcyNDc4NjQxODM4NTAwNw.GvlxgK.M-4YvbAKe3vlgWVJXyXKgZGEdPkkPN7EdIqrvk
 DISCORD_TOKEN = input("Ingresa tu token de Discord: ").strip()
 bot = setup_bot()
 voice_context = {}
@@ -34,7 +34,7 @@ async def analizar_mensajes(ctx, tipo: str = None, valor: str = None):
         fecha = message.created_at
         mensajes_por_mes[(fecha.year, fecha.month)] += 1
         mensajes_por_dia[fecha.date()] += 1
-        mensajes_por_usuario[message.author.name] += 1
+        mensajes_por_usuario[message.author.id] += 1
 
     # **Mensajes por mes**
     if tipo == "mes":
@@ -58,11 +58,34 @@ async def analizar_mensajes(ctx, tipo: str = None, valor: str = None):
     # **Mensajes por usuario**
     elif tipo == "usuario":
         if valor:  # Si se especifica un usuario
-            usuario, dias = (valor.split()[0], int(valor.split()[1])) if len(valor.split()) == 2 and valor.split()[1].isdigit() else (valor, 30)
-            mensajes_usuario = mensajes_por_usuario.get(usuario, 0)
-            await ctx.send(f"👤 Mensajes de **{usuario}** en los últimos {dias} días: **{mensajes_usuario}**")
+            partes = valor.split()
+            user_id = None
+
+            # Si es una mención "<@12312353334>"
+            if partes[0].startswith("<@") and partes[0].endswith(">"):
+                user_id = partes[0].strip("<@>")
+            elif partes[0].isdigit():  # Si ya es un ID
+                user_id = partes[0]
+            else:  # Buscar por nombre de usuario
+                usuario_obj = discord.utils.get(ctx.guild.members, name=partes[0])
+                if usuario_obj:
+                    user_id = str(usuario_obj.id)
+
+            # Verificamos si se obtuvo un ID válido
+            if user_id and user_id.isdigit():
+                usuario_obj = discord.utils.get(ctx.guild.members, id=int(user_id))
+
+                if usuario_obj:  # Si el usuario existe en el servidor
+                    dias = int(partes[1]) if len(partes) > 1 and partes[1].isdigit() else 30
+                    mensajes_usuario = mensajes_por_usuario.get(int(user_id), 0)
+
+                    await ctx.send(f"👤 Mensajes de **{usuario_obj.display_name}** en los últimos {dias} días: **{mensajes_usuario}**")
+                else:
+                    await ctx.send("❌ No se encontró el usuario en este servidor.")
+            else:
+                await ctx.send("❌ No se pudo identificar el usuario. Usa una mención, un ID o un nombre válido.")
         else:  # Si no se especifica usuario, mostrar todos
-            result = "\n".join([f"{user}: {count}" for user, count in mensajes_por_usuario.items()])
+            result = "\n".join([f"<@{user_id}>: {count}" for user_id, count in mensajes_por_usuario.items()])
             await ctx.send(f"👤 Mensajes por usuario:\n{result}")
 
     else:
