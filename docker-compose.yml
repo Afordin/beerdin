@@ -1,0 +1,6 @@
+version: '3.8'
+
+services:
+  beerdin-bot:
+    container_name: beerdin-bot
+    build: .

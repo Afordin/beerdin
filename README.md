@@ -6,64 +6,69 @@ Utiliza bases de datos PostgreSQL y MongoDB para almacenar y gestionar los datos
 ## Descripción
 Este bot se conecta a un servidor de Discord y recolecta información sobre el servidor, como la cantidad de mensajes enviados, emoticonos más usados, tiempo en llamadas de voz y estadísticas de usuarios. Los datos son almacenados temporalmente en bases de datos PostgreSQL y MongoDB para un uso específico. Los usuarios pueden personalizar el comportamiento del bot mediante un archivo `.env` para gestionar las configuraciones como el prefijo de comandos, el idioma y las claves de acceso a la base de datos.
 
-## Cómo instalar dependencias
+## Requisitos
 
-1. **Clona el repositorio:**
-   Si aún no has clonado el repositorio, puedes hacerlo con el siguiente comando:
+- **Python 3.13.2**
+- **uv**
+- **Ruff**
+- *(Opcional)* **Docker** y **Docker Compose**
 
+## Instalación y ejecución con uv
+
+1. **Instalar `uv`** (si no está ya instalado):
    ```bash
-   git clone https://github.com/TU_USUARIO/discord-bot.git
+   pip install uv
+   ```
+   O consulta la [documentación oficial de uv](https://github.com/astral-sh/uv) para otras opciones de instalación.
 
-2. **Crear y activar un entorno virtual:**
-
-   Crea un entorno virtual para el proyecto:
+2. **Clonar este repositorio**:
    ```bash
-   python -m venv venv
+   git clone https://github.com/Afordin/beerdin
+   cd beerdin
    ```
 
-   Activa el entorno virtual:
-
-   * En Linux/macOS:
-     ```bash
-     source venv/bin/activate
-     ```
-
-   * En Windows:
-     ```bash
-     .\venv\Scripts\activate
-     ```
-
-3. **Instalar las dependencias:**
-
-   Con el entorno virtual activado, instala las dependencias necesarias con el siguiente comando:
+3. **Sincronizar dependencias**:
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
-4. **Configurar las variables de entorno:**
-Crea un archivo .env en la raíz del proyecto utilizando el archivo .env.example como plantilla. Rellena las variables necesarias:
-     ```bash
-      cp .env.example .env
+   - Esto creará o actualizará el entorno virtual `.venv` e instalará todas las dependencias (incluyendo Ruff).
 
-Luego, edita el archivo .env y reemplaza los valores de ejemplo por los correctos:
+4. **Ejecutar la aplicación** (usando el CLI de FastAPI, instalado dentro de `.venv`):
    ```bash
-      DISCORD_TOKEN=TU_TOKEN_AQUI
-      MONGO_URL=TU_URL_MONGO_DB_AQUI
-      LANGUAGE="ES"
-      PREFIX="!"
+   uv run python app/main.py
    ```
 
-## Cómo arrancar el proyecto
-1. **Iniciar el bot:**
-Con las dependencias instaladas y el archivo .env configurado, puedes arrancar el bot ejecutando el siguiente comando:
-    ``` bash
-    python bot.py
-    
-Verás un mensaje en la terminal indicando que el bot ha iniciado correctamente:
-    ``` Bash
-    
-      ✅ Se ha iniciado correctamente como <nombre_del_bot>
-2. Acceder a la base de datos:
-Asegúrate de que las conexiones a las bases de datos (PostgreSQL y MongoDB) estén correctamente configuradas en el archivo .env para que el bot pueda almacenar los datos correctamente.
+## Usando Ruff con uv
 
-## Licencia
-Este proyecto está bajo la Licencia MIT. Para más detalles, consulta el archivo LICENSE.
+Para ejecutar **Ruff** a través de uv, simplemente ejecuta:
+
+```bash
+uv run ruff check .
+```
+
+Esto analizará tu código y mostrará cualquier sugerencia de estilo o sintaxis.
+
+
+## Ejecución con Docker
+
+### Dockerfile
+
+El **Dockerfile** incluido:
+1. Utiliza una imagen base de Python slim.
+2. Copia el binario de `uv`.
+3. Copia el proyecto en `/app`.
+4. Ejecuta `uv sync` para instalar las dependencias.
+5. Utiliza `fastapi` para iniciar la aplicación dentro del contenedor.
+
+### docker-compose.yml
+
+También encontrarás un archivo **docker-compose.yml** para ejecutar el servicio. Úsalo de la siguiente manera:
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+Esto:
+- **Construye** la imagen usando el Dockerfile.
+- **Inicia** el bot.

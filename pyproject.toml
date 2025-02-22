@@ -1,0 +1,12 @@
+[project]
+name = "beerdin"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.13.2"
+dependencies = [
+    "discord.py>=2.5.0",
+    "pydantic-settings>=2.8.0",
+    "pydantic>=2.10.6",
+    "pre-commit>=4.1.0",
+    "ruff>=0.9.6",
+]

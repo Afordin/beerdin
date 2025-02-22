@@ -1,11 +1,10 @@
+from config import getConfig
 from utils.bot_utils import setup_bot,typing
-from decouple import config
 import discord
 from collections import Counter
 from datetime import datetime, timedelta, timezone
-from collections import Counter
-# venv\Scripts\activate
-DISCORD_TOKEN = input("Ingresa tu token de Discord: ").strip()
+
+
 bot = setup_bot()
 voice_context = {}
 @bot.event
@@ -111,4 +110,5 @@ async def analizar_emojis(ctx, limit: int = 100):
     embed_help.add_field(name=f"**Uso de emojis en los últimos {limit} mensajes:**", value=f"**{result}**", inline=True)
     await typing(ctx,embed=embed_help,time=1)
 
-bot.run(DISCORD_TOKEN)
+if __name__ == "__main__":
+    bot.run(getConfig().DISCORD_TOKEN.get_secret_value())
