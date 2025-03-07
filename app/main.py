@@ -5,7 +5,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 
 
-bot = BeerdinBot.setup_bot()
+bot = BeerdinBot()
 voice_context = {}
 
 @bot.event

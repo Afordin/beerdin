@@ -14,23 +14,29 @@ class BeerdinBot(commands.Bot, metaclass=Singleton):
     def __init__(self, prefix="!", intents=None):
         if intents is None:
             intents = discord.Intents.default()
-            intents.message_content = True  # Necesario para leer mensajes
-            intents.guilds = True  # Información de servidores
-            intents.members = True  # Para acceder a miembros
             
+            intents.messages = True         # Enable receiving message events
+            intents.message_content = True  # Necessary to read message content
+            intents.reactions = True        # Enable receiving reaction events
+            intents.voice_states = True     # Enable receiving voice state updates
+            intents.guilds = True           # Enable receiving guild (server) updates
+            intents.members = True          # Enable receiving member updates
+
+
         super().__init__(
             command_prefix=prefix,
             intents=intents,
             help_command=None
         )
 
-    @classmethod
-    def setup_bot(cls, prefix="!", intents=None):
-        """Método de factoría para mantener compatibilidad"""
-        return cls(prefix, intents)
-
-async def typing(ctx, embed=None, time:int=2):
-    async with ctx.typing():
-        await asyncio.sleep(time)
-    if embed:
-        await ctx.send(embed=embed)
+    async def typing(ctx, embed=None, delay:int=2):
+        async with ctx.typing():
+            await asyncio.sleep(delay)
+        if embed:
+            await ctx.send(embed=embed)
+    
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send("⚠️ Comando no encontrado. Usa `!help`.")
+        else:
+            await ctx.send(f"❌ Error: {str(error)}")
